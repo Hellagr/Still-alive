@@ -5,26 +5,27 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour, IDataModifier
 {
-    [SerializeField] Camera playerCamera;
+    [SerializeField] private Camera playerCamera;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float sprintModifier = 2f;
     [SerializeField] private float sprintAcceleration = 0.2f;
-    PlayerModifications playerModifications;
-    CharacterController characterController;
-    InputSystem_Actions action;
-    Vector3 movementWithRotation;
-    Quaternion rotation;
-    Vector2 moveInput;
-    Vector2 moveInputInAir;
-    float currentVelocity = -9.81f;
-    float jumpVelocity = 10f;
-    float sideSpeedInJumping = 0.2f;
-    float standartFOV = 100f;
-    float sprintFOV = 120f;
-    int numberOfJumps = 2;
-    int currentNumberOfJumps;
-    bool isJumping = false;
+    private PlayerShoot playerShoot;
+    private PlayerModifications playerModifications;
+    private CharacterController characterController;
+    private InputSystem_Actions action;
+    private Vector3 movementWithRotation;
+    private Quaternion rotation;
+    private Vector2 moveInput;
+    private Vector2 moveInputInAir;
+    private float currentVelocity = -9.81f;
+    private float jumpVelocity = 10f;
+    private float sideSpeedInJumping = 0.2f;
+    //float standartFOV = 100f;
+    //float sprintFOV = 120f;
+    private int numberOfJumps = 2;
+    private int currentNumberOfJumps;
+    private bool isJumping = false;
 
     public float GetSpeed()
     {
@@ -66,6 +67,7 @@ public class PlayerMovement : MonoBehaviour, IDataModifier
         action.Player.Jump.performed += Jump;
         action.Player.Sprint.performed += Sprint;
         action.Player.Sprint.canceled += BackToNormalSpeed;
+        action.Player.Attack.performed += Shoot;
         action.Enable();
     }
 
@@ -107,6 +109,11 @@ public class PlayerMovement : MonoBehaviour, IDataModifier
     private void BackToNormalSpeed(InputAction.CallbackContext context)
     {
         playerModifications.RemoveMovementModifier(this);
+    }
+
+    private void Shoot(InputAction.CallbackContext context)
+    {
+        playerShoot.Shoot();
     }
 
     void OnDisable()
