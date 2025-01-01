@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour, IDataModifier
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float sprintModifier = 2f;
-    [SerializeField] private float sprintAcceleration = 0.2f;
+    // [SerializeField] private float sprintAcceleration = 0.2f;
     private PlayerShoot playerShoot;
     private PlayerModifications playerModifications;
     private CharacterController characterController;
@@ -54,6 +54,7 @@ public class PlayerMovement : MonoBehaviour, IDataModifier
 
     void Awake()
     {
+        playerShoot = GetComponent<PlayerShoot>();
         playerModifications = GetComponent<PlayerModifications>();
         characterController = GetComponent<CharacterController>();
         action = new InputSystem_Actions();

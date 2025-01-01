@@ -1,21 +1,33 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public abstract class EnemyBehaviour : MonoBehaviour
+public abstract class Enemy : MonoBehaviour
 {
+    [SerializeField] EnemyPool enemyPool;
     [SerializeField] Transform playerPosition;
     [SerializeField] private float distanceToAttack = 2f;
+    [SerializeField] private int healthPoint = 1;
     NavMeshAgent agent;
-    float rotationSpeedSlowdownMultiplier = 2f;
     float rotationSpeed = 3f;
 
-    void Start()
+    public int HealthPoint
+    {
+        get 
+        { 
+            return healthPoint; 
+        }
+        set 
+        { 
+            healthPoint = value; 
+        }
+    }
+
+    protected void Start()
     {
         agent = GetComponent<NavMeshAgent>();
     }
 
-
-    void Update()
+    protected void Update()
     {
         agent.SetDestination(playerPosition.position);
 
@@ -24,6 +36,11 @@ public abstract class EnemyBehaviour : MonoBehaviour
             Vector3 direction = playerPosition.position - transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        if(healthPoint < 1)
+        {
+            enemyPool.meleeCreepPool.Release(this);
         }
     }
 }

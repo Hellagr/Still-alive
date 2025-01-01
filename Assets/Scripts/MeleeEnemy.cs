@@ -1,5 +1,6 @@
 using UnityEngine;
 
-public class MeleeEnemy : EnemyBehaviour
+public class MeleeEnemy : Enemy
 {
+    
 }
