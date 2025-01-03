@@ -1,4 +1,4 @@
-public interface IDataModifier
+public interface IPlayerModifiers
 {
     public float GetMovementModifier();
 }
