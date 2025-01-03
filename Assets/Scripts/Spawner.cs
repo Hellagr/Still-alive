@@ -7,8 +7,10 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField] List<Transform> spawnPoints;
     [SerializeField] int amountOfCreeps = 50;
+    Coroutine coroutine;
     EnemyPool enemyPool;
-    ObjectPool<Enemy> meleeEnemyPool;
+    ObjectPool<MeleeEnemy> meleeEnemyPool;
+    ObjectPool<RangeEnemy> rangeEnemyPool;
     float frequencyOfCreepsSpawn = 0.5f;
     
 
@@ -16,7 +18,8 @@ public class Spawner : MonoBehaviour
     {
         enemyPool = GetComponent<EnemyPool>();
         meleeEnemyPool = enemyPool.meleeCreepPool;
-        StartCoroutine(StartSpawningCreeps(amountOfCreeps));
+        rangeEnemyPool = enemyPool.rangeCreepPool;
+        coroutine = StartCoroutine(StartSpawningCreeps(amountOfCreeps));
     }
 
     IEnumerator StartSpawningCreeps(int amount)
@@ -24,12 +27,15 @@ public class Spawner : MonoBehaviour
         while(amount > 1)
         {
             var randomSpawnSpot = Random.Range(0, spawnPoints.Count);
-            var meleeEnemy = meleeEnemyPool.Get();
-            meleeEnemy.transform.position = spawnPoints[randomSpawnSpot].transform.position;
-            meleeEnemy.transform.rotation = spawnPoints[randomSpawnSpot].transform.rotation;
+            // var meleeEnemy = meleeEnemyPool.Get();
+            // meleeEnemy.transform.position = spawnPoints[randomSpawnSpot].transform.position;
+            // meleeEnemy.transform.rotation = spawnPoints[randomSpawnSpot].transform.rotation;
+            var rangeEnemy = rangeEnemyPool.Get();
+            rangeEnemy.transform.position = spawnPoints[randomSpawnSpot].transform.position;
+            rangeEnemy.transform.rotation = spawnPoints[randomSpawnSpot].transform.rotation;
             amount--;
             yield return new WaitForSeconds(frequencyOfCreepsSpawn);
         }
-        StopCoroutine(StartSpawningCreeps(amountOfCreeps));
+        StopCoroutine(coroutine);
     }
 }

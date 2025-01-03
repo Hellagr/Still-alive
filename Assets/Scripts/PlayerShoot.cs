@@ -12,10 +12,10 @@ public class PlayerShoot : MonoBehaviour
         {
             var hitPoint = hit.point;
             var hitNormal = hit.normal;
-            Debug.DrawLine(transform.position, hit.point, Color.red, shootDistance);
+            //Debug.DrawLine(transform.position, hit.point, Color.red, shootDistance);
             if(hit.collider.TryGetComponent<Enemy>(out Enemy enemy))
             {
-                enemy.HealthPoint -= 1;
+                enemy.ReceiveDamage(1);
             }
         }
     }

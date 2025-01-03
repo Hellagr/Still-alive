@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour, IDataModifier
+public class PlayerMovement : MonoBehaviour, IPlayerModifiers
 {
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float gravity = -9.81f;

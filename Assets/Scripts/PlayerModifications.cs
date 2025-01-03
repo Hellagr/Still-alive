@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerModifications : MonoBehaviour
 {
-    List<IDataModifier> playerMovementModification = new List<IDataModifier>();
+    List<IPlayerModifiers> playerMovementModification = new List<IPlayerModifiers>();
     PlayerMovement playerMovement;
     float baseSpeed;
 
@@ -13,7 +13,7 @@ public class PlayerModifications : MonoBehaviour
         baseSpeed = playerMovement.GetSpeed();
     }
 
-    public void ApplyMovementModifier(IDataModifier movementModifier)
+    public void ApplyMovementModifier(IPlayerModifiers movementModifier)
     {
         if (movementModifier == null)
         {
@@ -23,7 +23,7 @@ public class PlayerModifications : MonoBehaviour
         UpdateMovementSpeed();
     }
 
-    public void RemoveMovementModifier(IDataModifier movementModifier)
+    public void RemoveMovementModifier(IPlayerModifiers movementModifier)
     {
         if (movementModifier == null)
         {
@@ -36,7 +36,7 @@ public class PlayerModifications : MonoBehaviour
     void UpdateMovementSpeed()
     {
         float newSpeed = baseSpeed;
-        foreach (IDataModifier modifier in playerMovementModification)
+        foreach (IPlayerModifiers modifier in playerMovementModification)
         {
             newSpeed *= modifier.GetMovementModifier();
         }
