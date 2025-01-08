@@ -3,14 +3,24 @@ using UnityEngine.Pool;
 
 public class EnemyPool : MonoBehaviour
 {
+    public static EnemyPool Instance { get; private set; }
+
     [SerializeField] MeleeEnemy meleeEnemyPrefab;
     [SerializeField] RangeEnemy rangeEnemyPrefab;
     public ObjectPool<MeleeEnemy> meleeCreepPool { get; private set; }
     public ObjectPool<RangeEnemy> rangeCreepPool { get; private set; }
-    Spawner spawner;
 
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         if (meleeEnemyPrefab == null)
         {
             Debug.LogError($"{meleeEnemyPrefab} is not assigned!");
@@ -20,18 +30,23 @@ public class EnemyPool : MonoBehaviour
             Debug.LogError($"{rangeEnemyPrefab} is not assigned!");
         }
 
-        spawner = GetComponent<Spawner>();
         meleeCreepPool = new ObjectPool<MeleeEnemy>(CreatePooledItemMelee, OnTakeFromPool, OnReturnedToPool, OnDestroyPoolObject, true, 50, 100);
         rangeCreepPool = new ObjectPool<RangeEnemy>(CreatePooledItemRange, OnTakeFromPool, OnReturnedToPool, OnDestroyPoolObject, true, 50, 100);
+
+        //for (int i = 0; i < 50; i++)
+        //{
+        //    meleeCreepPool.Get();
+        //    rangeCreepPool.Get();
+        //}
     }
 
-    MeleeEnemy CreatePooledItemMelee() 
+    MeleeEnemy CreatePooledItemMelee()
     {
         var enemy = Instantiate(meleeEnemyPrefab, transform.position, Quaternion.identity);
         return enemy;
     }
 
-    RangeEnemy CreatePooledItemRange() 
+    RangeEnemy CreatePooledItemRange()
     {
         var enemy = Instantiate(rangeEnemyPrefab, transform.position, Quaternion.identity);
         return enemy;

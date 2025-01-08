@@ -4,15 +4,25 @@ using UnityEngine.Pool;
 
 public class ProjectilePool : MonoBehaviour
 {
-    [SerializeField] RangeCreepProjectile rangeCreepProjectilePrefab;
-    public ObjectPool<RangeCreepProjectile> rangeCreepProjectilePool {get; private set;}
+    public static ProjectilePool Instance { get; private set; }
+    [SerializeField] ProjectileRangeCreep rangeCreepProjectilePrefab;
+    public ObjectPool<ProjectileRangeCreep> rangeCreepProjectilePool { get; private set; }
 
     void Awake()
     {
-        rangeCreepProjectilePool = new ObjectPool<RangeCreepProjectile>(CreateEnemyRangeProjectile, OnTakeFromPool, OnReturnToPool, OnDestroyPoolObject, true, 100, 200);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        rangeCreepProjectilePool = new ObjectPool<ProjectileRangeCreep>(CreateEnemyRangeProjectile, OnTakeFromPool, OnReturnToPool, OnDestroyPoolObject, true, 100, 200);
     }
 
-    private RangeCreepProjectile CreateEnemyRangeProjectile()
+    private ProjectileRangeCreep CreateEnemyRangeProjectile()
     {
         var enemyRangeProjectile = Instantiate(rangeCreepProjectilePrefab, transform.position, Quaternion.identity);
         return enemyRangeProjectile;
