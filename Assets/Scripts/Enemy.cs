@@ -5,31 +5,36 @@ using UnityEngine.AI;
 
 public abstract class Enemy : MonoBehaviour
 {
-    [SerializeField] protected EnemyPool enemyPool;
-    [SerializeField] Transform playerPosition;
+    //[SerializeField] protected EnemyPool enemyPool;
     [SerializeField] private float distanceToAttack = 2f;
     [SerializeField] private int healthPoint = 1;
     [SerializeField] float attackFrequency = 1f;
+    Transform playerPosition;
     NavMeshAgent agent;
     Coroutine attackCoroutine;
 
-    public int currentHealthPoints {get; private set;}
+    public int currentHealthPoints { get; private set; }
     float rotationSpeed = 3f;
     protected bool isAttacking = false;
 
     public int ReceiveDamage(int value)
     {
-        return currentHealthPoints -= value; 
+        return currentHealthPoints -= value;
+    }
+
+    void Awake()
+    {
+
     }
 
     void OnEnable()
     {
-        currentHealthPoints = healthPoint;
-    }
-
-    void Start()
-    {
         agent = GetComponent<NavMeshAgent>();
+        currentHealthPoints = healthPoint;
+        if (playerPosition == null)
+        {
+            playerPosition = GameManager.Instance.PlayerPosition;
+        }
     }
 
     protected virtual void Update()
@@ -41,16 +46,16 @@ public abstract class Enemy : MonoBehaviour
         if (currentDistanceToPlayer <= distanceToAttack)
         {
             RotationOnSpot();
-            
+
             if (!isAttacking)
             {
                 isAttacking = true;
 
-                if(attackCoroutine == null)
+                if (attackCoroutine == null)
                 {
                     attackCoroutine = StartCoroutine(Attack(attackFrequency));
                 }
-                else 
+                else
                 {
                     StartCoroutine(Attack(attackFrequency));
                 }

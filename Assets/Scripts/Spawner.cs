@@ -6,36 +6,45 @@ using UnityEngine.Pool;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] List<Transform> spawnPoints;
-    [SerializeField] int amountOfCreeps = 50;
-    Coroutine coroutine;
-    EnemyPool enemyPool;
+    [SerializeField] Timer timer;
+    Coroutine coroutineSpawnMelee;
+    Coroutine coroutineSpawnRange;
     ObjectPool<MeleeEnemy> meleeEnemyPool;
     ObjectPool<RangeEnemy> rangeEnemyPool;
-    float frequencyOfCreepsSpawn = 0.5f;
-    
+    float frequencyOfMeleeCreepsSpawning = 0.5f;
+    float frequencyOfMeleeRangeSpawning = 1f;
+
 
     void Start()
     {
-        enemyPool = GetComponent<EnemyPool>();
-        meleeEnemyPool = enemyPool.meleeCreepPool;
-        rangeEnemyPool = enemyPool.rangeCreepPool;
-        coroutine = StartCoroutine(StartSpawningCreeps(amountOfCreeps));
+        meleeEnemyPool = EnemyPool.Instance.meleeCreepPool;
+        rangeEnemyPool = EnemyPool.Instance.rangeCreepPool;
+        coroutineSpawnMelee = StartCoroutine(StartSpawningMelee());
+        coroutineSpawnRange = StartCoroutine(StartSpawningRange());
     }
 
-    IEnumerator StartSpawningCreeps(int amount)
+    IEnumerator StartSpawningMelee()
     {
-        while(amount > 1)
+        while (timer.currentRoundTime > 0)
         {
             var randomSpawnSpot = Random.Range(0, spawnPoints.Count);
-            // var meleeEnemy = meleeEnemyPool.Get();
-            // meleeEnemy.transform.position = spawnPoints[randomSpawnSpot].transform.position;
-            // meleeEnemy.transform.rotation = spawnPoints[randomSpawnSpot].transform.rotation;
+            var meleeEnemy = meleeEnemyPool.Get();
+            meleeEnemy.gameObject.transform.SetPositionAndRotation(spawnPoints[randomSpawnSpot].transform.position, spawnPoints[randomSpawnSpot].transform.rotation);
+            yield return new WaitForSeconds(frequencyOfMeleeCreepsSpawning);
+        }
+        StopCoroutine(coroutineSpawnMelee);
+    }
+
+    IEnumerator StartSpawningRange()
+    {
+        while (timer.currentRoundTime > 0)
+        {
+            var randomSpawnSpot = Random.Range(0, spawnPoints.Count);
             var rangeEnemy = rangeEnemyPool.Get();
             rangeEnemy.transform.position = spawnPoints[randomSpawnSpot].transform.position;
             rangeEnemy.transform.rotation = spawnPoints[randomSpawnSpot].transform.rotation;
-            amount--;
-            yield return new WaitForSeconds(frequencyOfCreepsSpawn);
+            yield return new WaitForSeconds(frequencyOfMeleeRangeSpawning);
         }
-        StopCoroutine(coroutine);
+        StopCoroutine(coroutineSpawnRange);
     }
 }
