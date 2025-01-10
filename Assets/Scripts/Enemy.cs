@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Pool;
 
 public abstract class Enemy : MonoBehaviour
 {
@@ -9,13 +10,14 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] private float distanceToAttack = 2f;
     [SerializeField] private int healthPoint = 1;
     [SerializeField] float attackFrequency = 1f;
-    Transform playerPosition;
+    //Transform playerPosition;
     NavMeshAgent agent;
     Coroutine attackCoroutine;
 
+    //protected ObjectPool<ParticleSystem> particleExpiriencePool;
+    protected bool isAttacking = false;
     public int currentHealthPoints { get; private set; }
     float rotationSpeed = 3f;
-    protected bool isAttacking = false;
 
     public int ReceiveDamage(int value)
     {
@@ -31,17 +33,23 @@ public abstract class Enemy : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         currentHealthPoints = healthPoint;
-        if (playerPosition == null)
-        {
-            playerPosition = GameManager.Instance.PlayerPosition;
-        }
+
+        //if (playerPosition == null)
+        //{
+        //    playerPosition = GameManager.Instance.PlayerPosition;
+        //}
+
+        //if (particleExpiriencePool == null)
+        //{
+        //    particleExpiriencePool = ParticlePool.Instance.particleExpiriencePool;
+        //}
     }
 
     protected virtual void Update()
     {
-        agent.SetDestination(playerPosition.position);
+        agent.SetDestination(GameManager.Instance.PlayerPosition.position);
 
-        var currentDistanceToPlayer = Vector3.Distance(transform.position, playerPosition.position);
+        var currentDistanceToPlayer = Vector3.Distance(transform.position, GameManager.Instance.PlayerPosition.position);
 
         if (currentDistanceToPlayer <= distanceToAttack)
         {
@@ -70,10 +78,11 @@ public abstract class Enemy : MonoBehaviour
 
     private void RotationOnSpot()
     {
-        Vector3 direction = playerPosition.position - transform.position;
+        Vector3 direction = GameManager.Instance.PlayerPosition.position - transform.position;
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 
     protected abstract IEnumerator Attack(float attackFrequency);
+    protected abstract void Death();
 }

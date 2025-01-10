@@ -6,7 +6,7 @@ using UnityEngine.Pool;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] List<Transform> spawnPoints;
-    [SerializeField] Timer timer;
+    [SerializeField] Countdown countdown;
     Coroutine coroutineSpawnMelee;
     Coroutine coroutineSpawnRange;
     ObjectPool<MeleeEnemy> meleeEnemyPool;
@@ -25,7 +25,7 @@ public class Spawner : MonoBehaviour
 
     IEnumerator StartSpawningMelee()
     {
-        while (timer.currentRoundTime > 0)
+        while (countdown.currentRoundTime > 0)
         {
             var randomSpawnSpot = Random.Range(0, spawnPoints.Count);
             var meleeEnemy = meleeEnemyPool.Get();
@@ -37,7 +37,7 @@ public class Spawner : MonoBehaviour
 
     IEnumerator StartSpawningRange()
     {
-        while (timer.currentRoundTime > 0)
+        while (countdown.currentRoundTime > 0)
         {
             var randomSpawnSpot = Random.Range(0, spawnPoints.Count);
             var rangeEnemy = rangeEnemyPool.Get();

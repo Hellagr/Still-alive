@@ -1,16 +1,16 @@
 using TMPro;
 using UnityEngine;
 
-public class Timer : MonoBehaviour
+public class Countdown : MonoBehaviour
 {
     [SerializeField] float roundDuration = 60f;
     public float currentRoundTime { get; private set; } = 0;
-    TextMeshProUGUI timerText;
+    TextMeshProUGUI countdownText;
 
     void OnEnable()
     {
-        timerText = GetComponent<TextMeshProUGUI>();
-        timerText.text = roundDuration.ToString();
+        countdownText = GetComponent<TextMeshProUGUI>();
+        countdownText.text = roundDuration.ToString();
         currentRoundTime = roundDuration;
     }
 
@@ -23,7 +23,7 @@ public class Timer : MonoBehaviour
         float fractionalPart = currentRoundTime - seconds;
         int milliseconds = Mathf.FloorToInt(fractionalPart * 100);
 
-        timerText.text = $"{seconds}:{milliseconds:D2}";
+        countdownText.text = $"{seconds}:{milliseconds:D2}";
     }
 
     void OnDisable()

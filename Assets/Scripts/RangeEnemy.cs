@@ -7,6 +7,7 @@ public class RangeEnemy : Enemy
     [SerializeField] Transform projectileStartPoint;
     ObjectPool<ProjectileRangeCreep> projectilePool;
     Transform playerTransform;
+    int rewardForKilling = 2;
 
     void Start()
     {
@@ -24,6 +25,7 @@ public class RangeEnemy : Enemy
 
         if (currentHealthPoints < 1 && enabled)
         {
+            Death();
             EnemyPool.Instance.rangeCreepPool.Release(this);
         }
 
@@ -41,4 +43,10 @@ public class RangeEnemy : Enemy
         };
     }
 
+    protected override void Death()
+    {
+        var particle = ParticlePool.Instance.particleExperiencePool.Get();
+        particle.SetAmountOfExpirience(rewardForKilling);
+        particle.transform.position = transform.position;
+    }
 }

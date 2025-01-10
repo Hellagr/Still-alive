@@ -6,7 +6,7 @@ public class ProjectileRangeCreep : MonoBehaviour
 
     void OnEnable()
     {
-        Invoke("ReleaseProjectile", 5f);
+        Invoke(nameof(ReleaseProjectile), 5f);
     }
 
     void Update()
@@ -14,11 +14,9 @@ public class ProjectileRangeCreep : MonoBehaviour
         transform.Translate(Vector3.forward * speedProjectileMultiplier * Time.deltaTime);
     }
 
-    //Make it work, doesn't work with terrain!!!
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject.name);
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player") || other.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        if ((other.gameObject.layer == LayerMask.NameToLayer("Player") || other.gameObject.layer == LayerMask.NameToLayer("Ground")) && gameObject.activeSelf)
         {
             ProjectilePool.Instance.rangeCreepProjectilePool.Release(this);
         }
@@ -30,5 +28,10 @@ public class ProjectileRangeCreep : MonoBehaviour
         {
             ProjectilePool.Instance.rangeCreepProjectilePool.Release(this);
         }
+    }
+
+    private void OnDisable()
+    {
+        CancelInvoke(nameof(ReleaseProjectile));
     }
 }
