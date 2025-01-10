@@ -4,11 +4,17 @@ public class PlayerShoot : MonoBehaviour
 {
     [SerializeField] Transform FP_Camera;
     private readonly float shootDistance = 500f;
+    LayerMask excludeLayer;
+
+    void Awake()
+    {
+        excludeLayer = ~LayerMask.GetMask("Experience", "Projectile");
+    }
 
     public void Shoot()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, FP_Camera.forward, out hit, shootDistance))
+        if (Physics.Raycast(transform.position, FP_Camera.forward, out hit, shootDistance, excludeLayer))
         {
             var hitPoint = hit.point;
             var hitNormal = hit.normal;

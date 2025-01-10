@@ -23,11 +23,11 @@ public class EnemyPool : MonoBehaviour
 
         if (meleeEnemyPrefab == null)
         {
-            Debug.LogError($"{meleeEnemyPrefab} is not assigned!");
+            Debug.LogError($"{meleeEnemyPrefab.name} is not assigned!");
         }
         if (rangeEnemyPrefab == null)
         {
-            Debug.LogError($"{rangeEnemyPrefab} is not assigned!");
+            Debug.LogError($"{rangeEnemyPrefab.name} is not assigned!");
         }
 
         meleeCreepPool = new ObjectPool<MeleeEnemy>(CreatePooledItemMelee, OnTakeFromPool, OnReturnedToPool, OnDestroyPoolObject, true, 50, 100);
