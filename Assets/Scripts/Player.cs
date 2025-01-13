@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,9 @@ public class Player : MonoBehaviour
 {
     [SerializeField] float sphereAround = 2f;
     [SerializeField] Countdown countdown;
+    [SerializeField] TextMeshProUGUI HP_visulizer;
+    public int ganeralHealthPoints { get; private set; } = 100;
+    public int currentHeathPoints { get; private set; }
     float chekingExpirienceAroundTime = 0.1f;
     LayerMask layerMaskExperience;
 
@@ -13,6 +17,12 @@ public class Player : MonoBehaviour
     {
         layerMaskExperience = LayerMask.GetMask("Experience");
         StartCoroutine(GrabExpirience());
+    }
+
+    void OnEnable()
+    {
+        currentHeathPoints = ganeralHealthPoints;
+        SetHP();
     }
 
     IEnumerator GrabExpirience()
@@ -30,6 +40,29 @@ public class Player : MonoBehaviour
             }
             yield return new WaitForSeconds(chekingExpirienceAroundTime);
         };
+    }
+
+    void TakeDamage(int damagePoints)
+    {
+        if (currentHeathPoints - damagePoints <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            currentHeathPoints -= damagePoints;
+            SetHP();
+        }
+    }
+
+    private void SetHP()
+    {
+        HP_visulizer.text = currentHeathPoints.ToString();
+    }
+
+    void Die()
+    {
+        gameObject.SetActive(false);
     }
 
     private void OnDrawGizmos()
