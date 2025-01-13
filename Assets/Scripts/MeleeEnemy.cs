@@ -10,7 +10,7 @@ public class MeleeEnemy : Enemy
 
         if (currentHealthPoints < 1 && enabled)
         {
-            Death();
+            Die();
             EnemyPool.Instance.meleeCreepPool.Release(this);
         }
     }
@@ -24,7 +24,7 @@ public class MeleeEnemy : Enemy
         };
     }
 
-    protected override void Death()
+    protected override void Die()
     {
         var particle = ParticlePool.Instance.particleExperiencePool.Get();
         particle.SetAmountOfExpirience(rewardForKilling);

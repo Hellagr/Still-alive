@@ -3,29 +3,35 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour, IPlayerModifiers
+public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private Camera playerCamera;
-    [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float sprintModifier = 2f;
-    // [SerializeField] private float sprintAcceleration = 0.2f;
+
+    [Header("Jump Settings")]
+    [SerializeField] private float gravity = -15f;
+    [SerializeField] private float jumpVelocity = 10f;
+    [SerializeField] private float strafePowerInAir = 2f;
+
+    [Header("Movement settings")]
+    [SerializeField] private float speed = 10f;
+    [SerializeField] private float dashSpeed = 100f;
+    [SerializeField] private float dashTime = 0.07f;
     private PlayerShoot playerShoot;
     private PlayerModifications playerModifications;
     private CharacterController characterController;
     private InputSystem_Actions action;
     private Vector3 movementWithRotation;
-    private Quaternion rotation;
+    //private Quaternion rotation;
     private Vector2 moveInput;
     private Vector2 moveInputInAir;
-    private float currentVelocity = -9.81f;
-    private float jumpVelocity = 10f;
+    private Vector2 dashDirection;
+    private float currentVelocity;
     private float sideSpeedInJumping = 0.2f;
-    //float standartFOV = 100f;
-    //float sprintFOV = 120f;
     private int numberOfJumps = 2;
     private int currentNumberOfJumps;
     private bool isJumping = false;
+    private bool isDashing = false;
+    public Action dashing;
 
     public float GetSpeed()
     {
@@ -34,23 +40,13 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
 
     public void SetSpeed(float newSpeed)
     {
-        //StartCoroutine(ChangeSpeed(newSpeed, sprintAcceleration));
         speed = newSpeed;
     }
 
-    //IEnumerator ChangeSpeed(float newSpeed, float duration)
-    //{
-    //    var t = 0f;
-    //    float initialSpeed = speed;
-
-    //    while (t < 1f)
-    //    {
-    //        t += Time.deltaTime;
-    //        speed = Mathf.Lerp(initialSpeed, newSpeed, t);
-    //        yield return null;
-    //    }
-    //    speed = newSpeed;
-    //}
+    public float GetDashTime()
+    {
+        return dashTime;
+    }
 
     void Awake()
     {
@@ -59,6 +55,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
         characterController = GetComponent<CharacterController>();
         action = new InputSystem_Actions();
         currentNumberOfJumps = numberOfJumps;
+        currentVelocity = gravity;
     }
 
     void OnEnable()
@@ -66,8 +63,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
         action.Player.Move.performed += Move;
         action.Player.Move.canceled += Stay;
         action.Player.Jump.performed += Jump;
-        action.Player.Sprint.performed += Sprint;
-        action.Player.Sprint.canceled += BackToNormalSpeed;
+        action.Player.Dash.performed += Dash;
         action.Player.Attack.performed += Shoot;
         action.Enable();
     }
@@ -102,14 +98,30 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
         }
     }
 
-    private void Sprint(InputAction.CallbackContext context)
+    private void Dash(InputAction.CallbackContext context)
     {
-        playerModifications.ApplyMovementModifier(this);
+        dashing?.Invoke();
+        dashDirection = action.Player.Move.ReadValue<Vector2>() != Vector2.zero ? action.Player.Move.ReadValue<Vector2>() : moveInput;
+        Vector3 dashVector = new Vector3(dashDirection.x, 0, dashDirection.y).normalized;
+        StartCoroutine(DashAction(dashVector));
+
     }
 
-    private void BackToNormalSpeed(InputAction.CallbackContext context)
+    IEnumerator DashAction(Vector3 dashVector)
     {
-        playerModifications.RemoveMovementModifier(this);
+        var currentTime = 0f;
+        SetMovementVector(dashVector);
+        var preGravity = currentVelocity;
+        isDashing = true;
+        currentVelocity = 0f;
+        while (currentTime < dashTime)
+        {
+            currentTime += Time.deltaTime;
+            characterController.Move((transform.rotation * dashVector) * dashSpeed * Time.deltaTime);
+            yield return new WaitForSeconds(Time.deltaTime);
+        };
+        isDashing = false;
+        currentVelocity = preGravity;
     }
 
     private void Shoot(InputAction.CallbackContext context)
@@ -121,8 +133,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
     {
         action.Player.Move.performed -= Move;
         action.Player.Move.canceled -= Move;
-        action.Player.Sprint.performed -= Sprint;
-        action.Player.Sprint.canceled -= BackToNormalSpeed;
+        action.Player.Dash.performed -= Dash;
         action.Disable();
     }
 
@@ -130,7 +141,7 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
     {
         MoveCharacter();
 
-        if (isJumping)
+        if (isJumping && !isDashing)
         {
             JumpAction();
         }
@@ -140,43 +151,50 @@ public class PlayerMovement : MonoBehaviour, IPlayerModifiers
     {
         var gravityVelocity = Vector3.up * currentVelocity;
         var movementVector = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-        var movementVectorInAir = new Vector3(moveInputInAir.x, 0, moveInputInAir.y).normalized;
-        rotation = Quaternion.Euler(0, playerCamera.transform.rotation.eulerAngles.y, 0);
         transform.rotation = Quaternion.Euler(0, playerCamera.transform.rotation.eulerAngles.y, 0);
 
         if (!isJumping)
         {
-            movementWithRotation = rotation * movementVector;
+            SetMovementVector(movementVector);
         }
 
         characterController.Move((gravityVelocity + (movementWithRotation * speed)) * Time.deltaTime);
 
-        if (isJumping)
+        if (characterController.isGrounded)
         {
-            moveInputInAir = action.Player.Move.ReadValue<Vector2>();
-            var movementWithRotationInAir = rotation * movementVectorInAir;
-            characterController.Move(movementWithRotationInAir * Time.deltaTime);
+            InterruptJump();
         }
+    }
+
+    private void InterruptJump()
+    {
+        currentNumberOfJumps = numberOfJumps;
+        isJumping = false;
+        currentVelocity = gravity;
+        moveInput = action.Player.Move.ReadValue<Vector2>();
+        moveInputInAir = Vector2.zero;
+    }
+
+    private void SetMovementVector(Vector3 movementVector)
+    {
+        movementWithRotation = transform.rotation * movementVector;
     }
 
     private void JumpAction()
     {
+        var movementVectorInAir = new Vector3(moveInputInAir.x, 0, moveInputInAir.y).normalized;
+        Strafe(movementVectorInAir);
+
         if (currentVelocity > gravity)
         {
             currentVelocity += gravity * Time.deltaTime;
         }
-        else
-        {
-            currentNumberOfJumps = numberOfJumps;
-            isJumping = false;
-            currentVelocity = gravity;
-            moveInput = action.Player.Move.ReadValue<Vector2>();
-            moveInputInAir = Vector2.zero;
-        }
     }
 
-    public float GetMovementModifier()
+    private void Strafe(Vector3 movementVectorInAir)
     {
-        return sprintModifier;
+        moveInputInAir = action.Player.Move.ReadValue<Vector2>();
+        var movementWithRotationInAir = transform.rotation * movementVectorInAir;
+        characterController.Move(movementWithRotationInAir * strafePowerInAir * Time.deltaTime);
     }
 }

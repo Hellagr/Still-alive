@@ -25,7 +25,7 @@ public class RangeEnemy : Enemy
 
         if (currentHealthPoints < 1 && enabled)
         {
-            Death();
+            Die();
             EnemyPool.Instance.rangeCreepPool.Release(this);
         }
 
@@ -43,7 +43,7 @@ public class RangeEnemy : Enemy
         };
     }
 
-    protected override void Death()
+    protected override void Die()
     {
         var particle = ParticlePool.Instance.particleExperiencePool.Get();
         particle.SetAmountOfExpirience(rewardForKilling);

@@ -5,11 +5,11 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    [SerializeField] private Transform playerPosition;
+    [SerializeField] TextMeshProUGUI currentLevel;
     [SerializeField] Slider sliderExperience;
+    [SerializeField] private Transform playerPosition;
     [SerializeField] int requredExperienceForLevelUp = 10;
     [SerializeField] int additionToNextLevel = 5;
-    [SerializeField] TextMeshProUGUI currentLevel;
     public int playerLevel { get; private set; } = 0;
     int currentExperience = 0;
 

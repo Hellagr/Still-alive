@@ -84,5 +84,5 @@ public abstract class Enemy : MonoBehaviour
     }
 
     protected abstract IEnumerator Attack(float attackFrequency);
-    protected abstract void Death();
+    protected abstract void Die();
 }
