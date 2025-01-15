@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerModifications : MonoBehaviour
 {
     List<IPlayerModifiers> playerMovementModification = new List<IPlayerModifiers>();
+    //List<IPlayerModifiers> damageModification = new List<IPlayerModifiers>();
     PlayerMovement playerMovement;
     float baseSpeed;
 

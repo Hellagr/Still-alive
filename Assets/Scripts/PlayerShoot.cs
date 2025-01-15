@@ -4,7 +4,13 @@ public class PlayerShoot : MonoBehaviour
 {
     [SerializeField] Transform FP_Camera;
     private readonly float shootDistance = 500f;
+    public int currentGunDamage { get; private set; } = 1;
     LayerMask excludeLayer;
+
+    public void SetCurrentDamage(int addedDamage)
+    {
+        currentGunDamage += addedDamage;
+    }
 
     void Awake()
     {
@@ -21,7 +27,7 @@ public class PlayerShoot : MonoBehaviour
             //Debug.DrawLine(transform.position, hit.point, Color.red, shootDistance);
             if (hit.collider.TryGetComponent<Enemy>(out Enemy enemy))
             {
-                enemy.ReceiveDamage(1);
+                enemy.ReceiveDamage(currentGunDamage);
             }
         }
     }

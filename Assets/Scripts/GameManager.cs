@@ -5,7 +5,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    [SerializeField] TextMeshProUGUI currentLevel;
+    [SerializeField] Image panelBetweenLevels;
+    [SerializeField] TextMeshProUGUI currentLevel, firstCard, secondCard, thirdCard;
     [SerializeField] Slider sliderExperience;
     [SerializeField] private Transform playerPosition;
     [SerializeField] int requredExperienceForLevelUp = 10;
@@ -51,6 +52,8 @@ public class GameManager : MonoBehaviour
             sliderExperience.value = rest;
             playerLevel++;
             currentLevel.text = playerLevel.ToString();
+            Time.timeScale = 0;
+            panelBetweenLevels.gameObject.SetActive(true);
         }
     }
 }
