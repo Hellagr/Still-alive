@@ -13,6 +13,13 @@ public class Player : MonoBehaviour
     float chekingExpirienceAroundTime = 0.1f;
     LayerMask layerMaskExperience;
 
+    public void SetGeneralHealth(int addedHealth)
+    {
+        ganeralHealthPoints += addedHealth;
+        currentHeathPoints += addedHealth;
+        SetVisualHP();
+    }
+
     void Start()
     {
         layerMaskExperience = LayerMask.GetMask("Experience");
@@ -22,7 +29,7 @@ public class Player : MonoBehaviour
     void OnEnable()
     {
         currentHeathPoints = ganeralHealthPoints;
-        SetHP();
+        SetVisualHP();
     }
 
     IEnumerator GrabExpirience()
@@ -51,11 +58,11 @@ public class Player : MonoBehaviour
         else
         {
             currentHeathPoints -= damagePoints;
-            SetHP();
+            SetVisualHP();
         }
     }
 
-    private void SetHP()
+    private void SetVisualHP()
     {
         HP_visulizer.text = currentHeathPoints.ToString();
     }

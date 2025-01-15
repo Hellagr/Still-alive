@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,12 +17,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private float dashSpeed = 100f;
     [SerializeField] private float dashTime = 0.07f;
+    [SerializeField] private int avaliableAmountOfDashes = 2;
+    public int currentAmountOfDashes { get; private set; }
+
     private PlayerShoot playerShoot;
     private PlayerModifications playerModifications;
     private CharacterController characterController;
     private InputSystem_Actions action;
     private Vector3 movementWithRotation;
-    //private Quaternion rotation;
     private Vector2 moveInput;
     private Vector2 moveInputInAir;
     private Vector2 dashDirection;
@@ -33,14 +36,24 @@ public class PlayerMovement : MonoBehaviour
     private bool isDashing = false;
     public Action dashing;
 
+    //Debug stats
+    [SerializeField] DebugStats debugStats;
+
     public float GetSpeed()
     {
         return speed;
     }
 
+    //Modificators
     public void SetSpeed(float newSpeed)
     {
         speed = newSpeed;
+    }
+
+    //Card buffs
+    public void AddSpeed(float addedSpeed)
+    {
+        speed += addedSpeed;
     }
 
     public float GetDashTime()
@@ -56,6 +69,7 @@ public class PlayerMovement : MonoBehaviour
         action = new InputSystem_Actions();
         currentNumberOfJumps = numberOfJumps;
         currentVelocity = gravity;
+        currentAmountOfDashes = avaliableAmountOfDashes;
     }
 
     void OnEnable()
@@ -100,11 +114,27 @@ public class PlayerMovement : MonoBehaviour
 
     private void Dash(InputAction.CallbackContext context)
     {
-        dashing?.Invoke();
-        dashDirection = action.Player.Move.ReadValue<Vector2>() != Vector2.zero ? action.Player.Move.ReadValue<Vector2>() : moveInput;
-        Vector3 dashVector = new Vector3(dashDirection.x, 0, dashDirection.y).normalized;
-        StartCoroutine(DashAction(dashVector));
+        if (currentAmountOfDashes > 0)
+        {
+            dashing?.Invoke();
+            currentAmountOfDashes--;
+            debugStats.DebugStatsUpdate();
+            dashDirection = action.Player.Move.ReadValue<Vector2>() != Vector2.zero ? action.Player.Move.ReadValue<Vector2>() : moveInput;
+            Vector3 dashVector = new Vector3(dashDirection.x, 0, dashDirection.y).normalized;
 
+            if (currentAmountOfDashes < avaliableAmountOfDashes)
+            {
+                Invoke("RegenerateOfDash", 1f);
+            }
+
+            StartCoroutine(DashAction(dashVector));
+        }
+    }
+
+    void RegenerateOfDash()
+    {
+        currentAmountOfDashes++;
+        debugStats.DebugStatsUpdate();
     }
 
     IEnumerator DashAction(Vector3 dashVector)
